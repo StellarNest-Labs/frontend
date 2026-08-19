@@ -1,212 +1,325 @@
-# SmartDrop (frontend)
+# <img src="assets/logo.svg" width="32" height="32" align="center" alt="" /> StellarNest — Frontend
 
-This repository is the **Next.js web app** for SmartDrop, hosted under [**SmartDropLabs/smartdrop-frontend**](https://github.com/SmartDropLabs/smartdrop-frontend). Soroban contracts live in [**smartdrop-contracts**](https://github.com/SmartDropLabs/smartdrop-contracts); the API and indexing service lives in [**smartdrop-backend**](https://github.com/SmartDropLabs/smartdrop-backend).
+The marketing site and product surface for **StellarNest**, a family
+financial coordination platform built on Stellar.
 
-**SmartDrop** is a liquidity-oriented airdrop experiment on **Stellar**: participants lock **Stellar assets** in **Soroban** farming pools and accrue **airdrop credits** over time instead of passive "click to claim" drops. The goal is to reward people who materially back a project early while discouraging purely extractive behavior.
+Most families manage money the same fragmented way: a joint bank account
+for the obvious shared bills, a spreadsheet nobody fully trusts for
+savings goals, a group chat for "can you approve this," and a lawyer on
+retainer for the inheritance conversation nobody wants to have out loud.
+None of it is programmable, and none of it actually enforces what the
+family agreed to — a spending limit is a promise, not a rule; an
+approval is a text message, not a signature.
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/5f1bd9dd-2d48-42da-83f2-b160e2d69c83" />
 
----
+StellarNest replaces all of that with **one shared treasury per family**:
+a Soroban smart contract on the Stellar network that holds the money and
+enforces the rules — who can spend how much, how many approvals a large
+withdrawal needs, how savings goals track contributions, when bills get
+paid automatically, and how an inheritance vault distributes wealth to
+the next generation once specific, family-set conditions are met. No
+single person — not a parent, not StellarNest itself — can override
+those rules once they're set, because they're checked by the contract on
+every transaction, not by a person's judgment in the moment.
 
-## What this project is
+> One treasury. One family. Infinite trust.
 
-At a high level, SmartDrop has two layers:
+**This repo is the part of StellarNest a person actually sees**: the
+public marketing site explaining what the product does and why (home,
+features, pricing, roadmap, docs, blog, and more — see [Pages](#pages)),
+plus a `/app` route previewing what the treasury dashboard itself looks
+like once it's wired up to real data. It's a Next.js application with no
+backend of its own — every number, goal, bill, and family member you see
+on this site today is realistic placeholder content defined in
+`src/lib/data.ts`, standing in for what will eventually come from the
+[`backend`](https://github.com/StellarNest-Org/backend)'s GraphQL API.
+It's one of three StellarNest repos:
 
-1. **Smart contracts (Soroban / Rust)** — developed in [**smartdrop-contracts**](https://github.com/SmartDropLabs/smartdrop-contracts)
-   - A **factory** registers or deploys isolated **farming pool** instances per campaign.
-   - Each pool accepts a configurable **staking asset** (classic asset + trustline and/or Soroban token contract, depending on your design). Participants **lock** balances, **earn credits** from elapsed time × amount × rate multipliers, can opt into **boost** rules, and **unlock** when policy allows.
+| Repo | Purpose |
+|---|---|
+| [`contracts`](https://github.com/StellarNest-Org/contracts) | The Soroban `treasury` contract |
+| [`backend`](https://github.com/StellarNest-Org/backend) | GraphQL API, Postgres data layer, non-custodial Stellar integration |
+| [`frontend`](https://github.com/StellarNest-Org/frontend) *(this repo)* | Marketing site + product preview (Next.js) |
 
-2. **Web app (this repo)**
-   A Chakra UI + Tailwind CSS front end with **Freighter** for wallet connection and Stellar network settings in `src/config/`. The **Farm** flow is wired to **Soroban RPC** (`invoke`, simulation, transaction submission); dashboard numbers reflect live contract state where a factory is configured, and fall back to clear "not available" states otherwise. Off-chain pages (**Prices**, **Airdrops**, **Webhooks**, **Alerts**) call [**smartdrop-backend**](https://github.com/SmartDropLabs/smartdrop-backend) directly over REST — see `src/lib/backend.ts` and `NEXT_PUBLIC_BACKEND_API_URL` below.
+## Table of contents
 
-### Pages
+- [New to this stack? Start here](#new-to-this-stack-start-here)
+- [Stack](#stack)
+- [Pages](#pages)
+- [Structure](#structure)
+- [Component inventory](#component-inventory)
+- [Design system](#design-system)
+- [The `/app` dashboard preview](#the-app-dashboard-preview)
+- [SEO & metadata](#seo--metadata)
+- [Development](#development)
+- [Testing what you changed](#testing-what-you-changed)
+- [Accessibility & performance](#accessibility--performance)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
 
-| Route | Talks to | Auth |
-|---|---|---|
-| `/` | Soroban RPC | — |
-| `/farm`, `/farm/[poolId]` | Soroban RPC + Freighter | Wallet |
-| `/history` | Soroban RPC (Horizon) + Freighter | Wallet |
-| `/leaderboard` | Soroban RPC | — |
-| `/contributors` | Static, GitHub API–sourced at build time | — |
-| `/prices` | smartdrop-backend `/prices` | — |
-| `/airdrops` | smartdrop-backend `/airdrops` | — |
-| `/webhooks` | smartdrop-backend `/webhooks` | — |
-| `/alerts` | smartdrop-backend `/alerts` | Backend API key (entered client-side, kept in memory only) |
+## New to this stack? Start here
 
-### 🔓 Asset Unlock & Withdrawal System
+A few concepts recur throughout this codebase. If any of these are new
+to you, this section should be enough to follow the rest of the README:
 
-- **⏰ Time-Lock Protection**: Assets are locked for a configurable minimum period (default: 7 days)
-- **📊 Partial Unlocks**: Users can unlock portions of their stake while keeping the rest earning
-- **⏱️ Real-Time Countdown**: Live countdown timer shows exactly when assets become unlockable
-- **🔐 Freighter Integration**: Secure transaction signing through Freighter wallet
-- **⚠️ Comprehensive Error Handling**: User-friendly error messages and retry logic
-- **📈 Analytics Tracking**: Full event tracking for unlock actions and outcomes
-- **📱 Mobile Responsive**: Verified overflow-free down to 320px viewports
+- **Next.js** is a framework built on top of React that adds file-based
+  **routing** (a folder under `src/app/` becomes a URL — `src/app/about/`
+  is `/about`), **rendering on the server** (pages are built to HTML
+  before they reach the browser, which is faster and better for SEO than
+  a blank page that fills in with JavaScript), and conventions for
+  things every real site needs — metadata, sitemaps, image optimization
+  — without extra libraries. The **App Router** (the `app/` directory,
+  as opposed to the older `pages/` directory) is Next's current routing
+  system; every route in this repo is a `page.tsx` file inside a folder
+  named for its URL segment.
+- **Server vs. Client Components.** In the App Router, every component
+  is a Server Component by default — it renders once on the server and
+  ships only HTML to the browser, no JavaScript for that component at
+  all. A component becomes a **Client Component** (add `'use client'` at
+  the top of the file) only when it needs interactivity — state, event
+  handlers, browser APIs like `window`. In this repo, that's things like
+  `Navbar` (menu open/close state), the theme toggle, the testimonials
+  carousel, and any chart. Everything else — most of the marketing
+  sections — is a Server Component, which keeps the amount of JavaScript
+  sent to the browser small.
+- **Turbopack** is Next's newer, faster bundler (the tool that turns all
+  these `.tsx` files into what a browser can run) — as of Next.js 16
+  it's the default for both `next dev` and `next build`, replacing
+  Webpack.
+- **Tailwind CSS** lets you style elements with utility classes directly
+  in JSX (`className="rounded-2xl border p-6"`) instead of writing
+  separate CSS files. **Tailwind v4** changed how theming works: instead
+  of a `tailwind.config.js` file, colors/fonts/spacing are defined as
+  plain CSS custom properties inside an `@theme` block in
+  `src/app/globals.css` — that's why you won't find a config file in
+  this repo, just that one CSS file.
+- **Radix UI** provides unstyled, fully-accessible interactive
+  components (keyboard navigation, correct ARIA attributes) that this
+  repo wraps with its own Tailwind classes — e.g. `Accordion` in
+  `src/components/ui/accordion.tsx` is Radix's accordion primitive with
+  StellarNest's own look applied on top.
+- **`next/font`** downloads and self-hosts Google Fonts (Fraunces,
+  Inter, JetBrains Mono here) at build time, so the browser never makes
+  a separate request to Google's servers — faster, and avoids a
+  flash-of-different-font as the page loads.
+- **`next/og`** generates images (like the Open Graph preview image you
+  see when a link is shared on social media) on the fly from JSX/CSS,
+  the same way a page renders — see `src/app/opengraph-image.tsx`. No
+  static image file to keep in sync with the brand by hand.
 
-**Technical Features:**
-- Minimum unlock validation (0.01 minimum)
-- Wallet connectivity verification
-- Transaction simulation and fee estimation
-- Automatic retry logic for transient failures
-- Real-time UI updates upon confirmation
-- Stellar Expert transaction links
+## Stack
 
----
+Next.js 16 (App Router, Turbopack, React 19) · TypeScript · Tailwind CSS 4
+(CSS-first `@theme`, no `tailwind.config.js`) · Framer Motion · Radix UI
+primitives (`accordion`, `slot`) · Recharts · React Hook Form + Zod v4 ·
+`next-themes` for dark/light mode · TanStack Query · `next/font` (Fraunces
++ Inter + JetBrains Mono) · `next/og` for dynamically generated OG/Twitter
+images and the Apple touch icon.
+
+## Pages
+
+| Route | What's there |
+|---|---|
+| `/` | Hero, animated stats, "how it works," all five feature sections (savings, bills, investing, inheritance, rules), roles & permission matrix, multi-asset strip, Stellar integration explainer, security grid, automation workflows, comparison table, testimonials carousel, FAQ, CTA |
+| `/about` | Mission/story, values, team grid, stats |
+| `/features` | The same five feature sections as the homepage in more depth, plus roles, assets, and automation |
+| `/pricing` | Starter/Pro/Enterprise pricing cards, comparison table, FAQ |
+| `/roadmap` | Shipped → now → next → later timeline |
+| `/docs` | Guide index (getting started, treasury operations, inheritance vault, API reference) with real GraphQL and non-custodial-signing code samples |
+| `/developers` | Repo links, tech stack by category, contributing pointer |
+| `/blog` , `/blog/[slug]` | Four full posts on programmable treasuries, inheritance without probate, why Soroban, and kids' allowances |
+| `/contact` | Validated contact form (React Hook Form + Zod) |
+| `/privacy`, `/terms` | Legal pages |
+| `/app` | **Product preview** — the treasury dashboard, described [below](#the-app-dashboard-preview) |
+| `not-found` (404) | Branded "this nest is empty" page |
+
+Every route also gets a generated `sitemap.xml`, `robots.txt`, a
+`manifest.webmanifest`, and a dynamic Open Graph image — see
+[SEO & metadata](#seo--metadata).
+
+## Structure
+
+```
+src/
+  app/
+    <route>/page.tsx      one folder per route in the table above
+    layout.tsx             root layout: fonts, ThemeProvider, QueryProvider, Navbar/Footer
+    globals.css             Tailwind v4 theme tokens (@theme, @custom-variant dark)
+    manifest.ts             PWA manifest (Next file convention)
+    opengraph-image.tsx     dynamic 1200×630 OG image (next/og)
+    apple-icon.tsx          dynamic 180×180 apple touch icon (next/og)
+    icon.svg                 favicon — the canonical nest-mark SVG
+    sitemap.ts, robots.ts    generated from lib/data.ts
+
+  components/
+    layout/          navbar (mega menu, mobile drawer, theme toggle), footer
+    marketing/        hero, feature rows, roles section, comparison table,
+                      testimonials carousel, FAQ accordion, pricing cards,
+                      CTA section, roadmap timeline, contact form, stats band,
+                      treasury illustration, asset strip, Stellar/security sections
+    dashboard/        stat cards, portfolio area chart, allocation donut,
+                      activity timeline (used on /app)
+    ui/                button, card, badge, accordion, container/section
+    nest-mark.tsx      the logo mark + wordmark, as React components
+    social-icons.tsx   hand-rolled GitHub/X/Discord SVGs (lucide-react dropped brand icons)
+    theme-provider.tsx, query-provider.tsx
+
+  lib/
+    data.ts    every piece of placeholder content: nav, roles, permission
+               matrix, savings goals, bills, portfolio data, family members,
+               assets, automations, family rules, testimonials, FAQ,
+               pricing, comparison table, stats, roadmap, blog posts, docs
+               sections, tech stack, repo list
+    fonts.ts   next/font declarations (Fraunces, Inter, JetBrains Mono)
+    utils.ts   cn() (clsx + tailwind-merge), formatCurrency, formatCompact
+
+  types/
+    index.ts   shared types for the content in lib/data.ts (NavLink, NavMenu,
+               BlogPost, RoadmapPhase, PricingPlan, Testimonial, FamilyRoleDefinition)
+```
+
+All marketing content lives in `lib/data.ts` on purpose — swapping in
+real content later (from the backend's GraphQL API, a CMS, whatever) is a
+matter of replacing that one file's exports, not hunting through JSX
+across thirty components.
+
+## Component inventory
+
+**Layout** — `Navbar` (scroll-aware glass background, hover mega-menu for
+Product/Resources, mobile drawer, theme toggle) and `Footer`
+(link columns generated from `lib/data.ts`'s `footerNav`, social icons).
+
+**Marketing** — `Hero`, `StatsBand` (+`AnimatedCounter`, a
+`requestAnimationFrame`-driven count-up that only fires once in view),
+`HowItWorks`, `FeatureRow` (+`FeatureMockup`, which renders one of five
+different mini-dashboards — savings/bills/investments/inheritance/rules
+— based on a `kind` prop), `RolesSection` (role cards + the full
+permission matrix table), `AssetStrip`, `StellarSection`,
+`SecuritySection`, `AutomationSection` (+`AutomationList`),
+`ComparisonSection`, `TestimonialsCarousel`, `FaqSection`,
+`PricingCards`, `CtaSection`, `RoadmapTimeline`, `ContactForm`,
+`TreasuryIllustration` (the floating-cards hero visual), `PageHero`
+(shared sub-page header), `SectionHeader`.
+
+**Dashboard** (`/app` only) — `StatCard`, `PortfolioChart` (Recharts
+`AreaChart`), `AllocationDonut` (Recharts `PieChart`), `ActivityTimeline`.
+
+**UI primitives** — `Button` (cva variants: primary/accent/outline/
+ghost/link), `Card` (+Header/Title/Description/Content/Footer), `Badge`,
+`Accordion` (Radix, used by the FAQ), `Container`/`Section`.
 
 ## Design system
 
-- **Chakra UI** provides the component layer, theming tokens (`src/lib/theme.ts`), forms, modals, and the wallet UI.
-- **Tailwind CSS** (utilities only — `preflight` is disabled so it doesn't clash with Chakra's reset) drives layout and responsive breakpoints for newer components, starting with the navbar.
-- Dark-first theme with a brand accent gradient, card-based layouts with hover states, and a custom SVG mark (`src/app/icon.svg`) replacing the default Next.js favicon.
-- The `/contributors` page pulls live commit data from the GitHub API across the three SmartDropLabs repos — no static or borrowed data.
+A distinct visual identity from other StellarNest-adjacent products —
+deliberately not another dark-mode/single-accent SaaS template:
 
----
+- **Palette** — deep emerald/forest green (`--color-primary`) paired with
+  antique gold (`--color-accent`), on a warm cream base in light mode
+  (`#fbf8f1`) or a deep charcoal-green base in dark mode (`#0d1712`). A
+  "family heritage / treasury" direction rather than a generic tech blue
+  or violet. All tokens are CSS custom properties in
+  `src/app/globals.css`, remapped for Tailwind via `@theme inline` so
+  `bg-primary`, `text-accent`, etc. just work, and swapped per-theme
+  under a `.dark` class (`@custom-variant dark`, driven by `next-themes`).
+- **Typography** — Fraunces (a warm, expressive serif) for display
+  headings, paired with Inter for body/UI text, and JetBrains Mono for
+  code. The serif display face is the one deliberate typographic choice
+  that sets this apart from an all-sans-stack SaaS look.
+- **Logo** — a "nest" of three concentric **dashed** rings plus a solid
+  center dot (`src/components/nest-mark.tsx`, mirrored exactly in
+  `src/app/icon.svg` for the favicon and in the OG/apple-icon generators)
+  — a woven-nest motif instead of a shield, badge, or ticket-style mark.
+- **Motion** — Framer Motion for scroll-triggered reveals (`whileInView`)
+  and the mega-menu/mobile-drawer transitions; a few CSS keyframes
+  (`float`, `shimmer`) in `globals.css` for the hero's floating cards and
+  the accent shimmer text effect.
+- **Glassmorphism** — `.glass-panel` (`globals.css`) — a
+  `backdrop-filter: blur()` + translucent card background, used for the
+  sticky navbar, hero illustration, and testimonial cards.
 
-## Why it matters
+## The `/app` dashboard preview
 
-Traditional airdrops often optimize for reach, not alignment. SmartDrop reframes distribution around **commitment**:
+`/app` renders what using StellarNest actually looks like: eight stat
+cards (Total Balance, Savings, Bills Due, Investments, Monthly Spending,
+Upcoming Transfers, Inheritance Status, Pending Approvals), a portfolio
+value area chart, an asset-allocation donut, savings-goal progress bars,
+an upcoming-bills list, a recent-activity feed, the family/roles roster,
+and the active rules list — all built from the same placeholder data in
+`lib/data.ts` used elsewhere on the site. It's explicitly labeled a
+**product preview** (see the banner at the top of the page): there's no
+wallet connection or live data here yet. Wiring it up means pointing it
+at [`StellarNest-Org/backend`](https://github.com/StellarNest-Org/backend)'s
+GraphQL API and its non-custodial Stellar signing flow
+(`/stellar/build` → sign client-side → `/stellar/submit`).
 
-- **Skin in the game** — Credits accrue from locked assets, not from a one-off signature.
-- **Liquidity and attention** — Projects can target early supporters willing to lock value for a period.
-- **Transparent rules** — Rates and multipliers live in **Soroban** contracts; the app is a window into that state.
+## SEO & metadata
 
-This does not replace legal, compliance, or token-design work; it is a **mechanism** teams can study, fork, or extend.
+- `src/app/layout.tsx` sets a title template, Open Graph and Twitter Card
+  metadata, and theme-color per color scheme.
+- `src/app/opengraph-image.tsx` and `apple-icon.tsx` generate real PNGs
+  at request time via `next/og`'s `ImageResponse` — no static image
+  asset to keep in sync with the brand, they're built from the same
+  colors/marks as the rest of the site.
+- `src/app/manifest.ts` is a proper PWA manifest (Next's file
+  convention, served at `/manifest.webmanifest`).
+- `src/app/sitemap.ts` and `robots.ts` are generated from `lib/data.ts`
+  (every static route plus every blog post slug).
+- Every page sets its own `title`/`description` via the `metadata`
+  export, composed into the root template (`%s · StellarNest`).
 
----
-
-## Repository layout
-
-| Path | Role |
-|------|------|
-| `src/app/` | Next.js App Router pages (home, farm, history, leaderboard, contributors) |
-| `src/components/` | Shared UI: navbar, footer, wallet button, charts, modals |
-| `src/config/` | Stellar network, Horizon, Soroban RPC, optional factory contract id |
-| `src/data/contributors.json` | Live-synced contributor data (regenerate via the GitHub contributors API) |
-| `src/app/icon.svg` | Favicon / brand mark |
-
-**Stack:** Next.js 15, React 19, TypeScript, Chakra UI, Tailwind CSS, **@stellar/freighter-api**, TanStack Query, Recharts. The app builds as a **static export** (`output: "export"`) so only the front end is shipped — no Node server.
-
----
-
-## Deployments
-
-When your Soroban **factory** is on **Futurenet** or **Stellar Testnet**, publish the contract id and explorer links here and set:
-
-- `NEXT_PUBLIC_FACTORY_CONTRACT_ID`
-- `NEXT_PUBLIC_SOROBAN_RPC_URL` (if not using the default for your network)
-
-### GitHub Pages
-
-Workflow: [`.github/workflows/deploy-github-pages.yml`](./.github/workflows/deploy-github-pages.yml). On every push to `main` it builds and updates the **`gh-pages`** branch.
-
-**One-time setup (required):**
-
-1. Open **`https://github.com/SmartDropLabs/smartdrop-frontend/settings/pages`**
-2. **Build and deployment → Source:** choose **Deploy from a branch** (not "GitHub Actions").
-3. **Branch:** `gh-pages`, folder **`/ (root)`**, then **Save**.
-4. Wait 1–2 minutes after the workflow turns green (**Actions** tab).
-
-**Link:** **`https://smartdroplabs.github.io/smartdrop-frontend/`**
-
-Local preview with the same asset paths: `BASE_PATH=/smartdrop-frontend npm run build` and `npx serve out` → open **`http://localhost:3000/smartdrop-frontend/`**.
-
-### Vercel
-
-1. Sign in at [vercel.com](https://vercel.com) and click **Add New… → Project**.
-2. **Import** `SmartDropLabs/smartdrop-frontend` (or your fork). Leave the root directory as the repo root (where `package.json` lives).
-3. Vercel should detect **Next.js**. `vercel.json` runs **`npm ci`** + **`npm run build`**; **`.npmrc`** enables `legacy-peer-deps` so Chakra + React resolve like your lockfile. The app is a **static export** (`next.config.ts`): no Node server, only HTML/JS/CSS.
-4. Under **Environment Variables**, add any optional `NEXT_PUBLIC_*` values from above (defaults work for testnet without them).
-5. In **Settings → General**, set **Node.js** to **20.x** (see `.nvmrc` / `package.json` `engines`).
-6. **Deploy.** Pushes to the connected branch trigger new deployments.
-
-**Routes:** use **`/leaderboard`**. The old **`/leaderbord`** path still loads a tiny page that redirects to `/leaderboard`.
-
-**Freighter:** For wallet connect on your `*.vercel.app` URL, ensure the site is allowed in Freighter / use a network that matches your `NEXT_PUBLIC_STELLAR_NETWORK` settings.
-
----
-
-## Local development
-
-### Prerequisites
-
-- Node.js 20+ recommended
-- npm (lockfile is `package-lock.json`; `.npmrc` sets `legacy-peer-deps`)
-- [Freighter](https://www.freighter.app/) browser extension for wallet connect
-
-### Setup
+## Development
 
 ```bash
-npm ci                # or: npm install
+npm install
+npm run dev      # http://localhost:3000 (Turbopack)
+npm run lint      # ESLint, flat config (eslint-config-next)
+npm run build     # production build (Turbopack), also type-checks
+npm run start     # serve the production build
 ```
 
-Optional `.env.local`:
+There's no `.env` required to run the frontend today — all content is
+local placeholder data in `lib/data.ts`. When the dashboard is wired to
+the live backend, expect a `NEXT_PUBLIC_API_URL` (or similar) to be
+added for the GraphQL endpoint.
 
-```
-NEXT_PUBLIC_STELLAR_NETWORK=TESTNET
-# NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
-# NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
-# NEXT_PUBLIC_FACTORY_CONTRACT_ID=C...
-# NEXT_PUBLIC_POOL_CONTRACT_ID=C...            # pool that custodies locked positions
-# NEXT_PUBLIC_MIN_LOCK_PERIOD_SECONDS=604800   # min lock before unlock (default 7 days)
-# NEXT_PUBLIC_BACKEND_API_URL=http://localhost:4000/api/v1   # smartdrop-backend, for /prices /airdrops /webhooks /alerts
-```
+## Testing what you changed
 
-Then, pick one:
+There's no component test suite yet (this repo is UI-heavy and
+placeholder-data-driven, so the highest-value checks today are `npm run
+lint` and `npm run build` — the build type-checks every page and fails
+loudly on a bad import, a missing `key`, or an unresolved route). For
+anything visual, run `npm run dev` and click through the affected pages
+in both light and dark mode (the toggle is in the navbar) — the
+`.github/workflows/ci.yml` workflow runs lint + build on every push/PR
+but does not currently do visual regression testing.
 
-```bash
-npm run dev          # frontend only — on-chain pages work, backend pages show a fetch error
-npm run dev:stack    # frontend + smartdrop-backend + an in-memory Redis, all in one command
-```
+## Accessibility & performance
 
-`dev:stack` (`scripts/dev-stack.sh`) expects [`smartdrop-backend`](https://github.com/SmartDropLabs/smartdrop-backend) cloned as a sibling directory (`../smartdrop-backend`), or point it elsewhere with `SMARTDROP_BACKEND_DIR=/path npm run dev:stack`. It needs no Docker or system Redis install — the first run installs a small in-memory Redis under `~/.smartdrop-dev/` and reuses it on every subsequent run, along with a persisted admin API key (printed on startup, needed for `/alerts`). Ctrl+C stops all three processes; logs land in `~/.smartdrop-dev/logs/`.
+- Semantic headings (`h1`→`h2`→`h3`) throughout; the accordion, tabs-style
+  toggles, and mega-menu use Radix primitives for correct ARIA roles and
+  keyboard navigation.
+- Color contrast was chosen against both the cream/light and
+  charcoal-green/dark backgrounds, not just one theme.
+- `next/font` self-hosts and subsets all three typefaces (no external
+  font request at runtime, no layout shift from a late font swap).
+- Charts, the mega-menu, and the testimonials carousel are the only
+  client components with real interactivity — everything else renders
+  as a Server Component by default, keeping the client JS bundle small.
+- `useInView`-gated animations (stats counters, feature mockups) don't
+  run until scrolled into view, avoiding wasted work above the fold.
 
-Open [http://localhost:3000](http://localhost:3000). Production: `npm run build` / `npm start`.
+## Deployment
 
-### Soroban contracts
-
-See the [**smartdrop-contracts**](https://github.com/SmartDropLabs/smartdrop-contracts) repository. Use the official **Stellar / Soroban** CLI and Rust toolchain to scaffold, test, and deploy; then connect the UI via RPC and Freighter-signed transactions.
-
-**Never commit** signing keys or sponsor secrets.
-
----
-
-## Security and status
-
-This codebase is **not** presented as audited production infrastructure. Pool economics, boosts, and admin operations must be reviewed for your deployment. Anyone shipping should:
-
-- Run their own review or professional audit
-- Start on **test networks** and conservative parameters
-- Treat privileged functions (`pause`, parameter updates, rescues) as governance-sensitive
-
----
-
-## Roadmap
-
-| Area | Opportunity |
-|------|----------------|
-| **Soroban pools** | Implement factory + pool in Rust; lock Stellar assets; emit events for indexers. |
-| **Boost & donations** | Wire boosts to explicit token transfer rules in contracts. |
-| **Frontend** | Continue migrating layout/responsive styling to Tailwind. |
-| **Horizon + Soroban** | Optional account balance reads via Horizon alongside contract state. |
-
----
-
-## Contributors
-
-SmartDrop is built by the SmartDropLabs org across three repos: this frontend, [`smartdrop-backend`](https://github.com/SmartDropLabs/smartdrop-backend), and [`smartdrop-contracts`](https://github.com/SmartDropLabs/smartdrop-contracts). See **[`CONTRIBUTORS.md`](./CONTRIBUTORS.md)** or the in-app [`/contributors`](https://smartdroplabs.github.io/smartdrop-frontend/contributors) page for the full list, sourced directly from each repo's GitHub contributors API.
-
----
+Built for Vercel — `npm run build` produces a standard Next.js
+production build with no special adapter configuration required. Any
+platform that runs `next build` + `next start` (or a Next-aware adapter)
+works equally well.
 
 ## Contributing
 
-1. **Fork** the repository and branch for your change.
-2. **Discuss** larger design shifts in an issue when helpful.
-3. **Keep PRs focused** — one coherent improvement per pull request.
-4. **Tests** — Add Soroban tests for contract changes; exercise the Next.js app after UI updates.
-5. **Documentation** — Update this README when env vars or deployment steps change.
-
-Please be respectful in issues and reviews.
-
----
-
-## License
-
-Add a root `LICENSE` when you are ready (MIT is common for OSS). Until then, clarify terms in your fork if you distribute the code publicly.
+Issues and PRs are welcome. Before opening a PR: `npm run lint` and
+`npm run build` should both pass cleanly. See
+[`StellarNest-Org/backend`](https://github.com/StellarNest-Org/backend)
+for the API this will eventually consume, and
+[`StellarNest-Org/contracts`](https://github.com/StellarNest-Org/contracts)
+for the on-chain rules the product is built around.
