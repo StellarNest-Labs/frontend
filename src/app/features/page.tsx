@@ -1,23 +1,25 @@
-import { Hero } from '@/components/marketing/hero';
-import { StatsBand } from '@/components/marketing/stats-band';
-import { HowItWorks } from '@/components/marketing/how-it-works';
+import type { Metadata } from 'next';
+import { PageHero } from '@/components/marketing/page-hero';
 import { FeatureRow } from '@/components/marketing/feature-row';
 import { RolesSection } from '@/components/marketing/roles-section';
 import { AssetStrip } from '@/components/marketing/asset-strip';
-import { StellarSection } from '@/components/marketing/stellar-section';
-import { SecuritySection } from '@/components/marketing/security-section';
 import { AutomationSection } from '@/components/marketing/automation-section';
-import { ComparisonSection } from '@/components/marketing/comparison-section';
-import { TestimonialsCarousel } from '@/components/marketing/testimonials-carousel';
-import { FaqSection } from '@/components/marketing/faq-section';
 import { CtaSection } from '@/components/marketing/cta-section';
 
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: 'Features',
+  description:
+    'Shared savings, bill management, family investments, an inheritance vault, and a programmable rules engine — everything a family treasury needs.',
+};
+
+export default function FeaturesPage() {
   return (
     <>
-      <Hero />
-      <StatsBand />
-      <HowItWorks />
+      <PageHero
+        eyebrow="Features"
+        title="Everything a family treasury needs, in one place"
+        description="Every feature below runs on the same treasury, governed by the same rules — nothing lives in a separate app or a separate trust boundary."
+      />
 
       <FeatureRow
         eyebrow="Shared savings"
@@ -27,6 +29,7 @@ export default function HomePage() {
           'Unlimited savings goals per treasury',
           'Every member can contribute automatically',
           'Real-time progress, visible to the whole family',
+          'Goals can be funded manually or by automation',
         ]}
         kind="savings"
       />
@@ -38,6 +41,7 @@ export default function HomePage() {
           'Recurring payments execute through smart contracts',
           'Reminders land before a bill is due, not after',
           'Every payment is logged to the treasury’s audit trail',
+          'Cancel or adjust a recurring bill at any time',
         ]}
         kind="bills"
         reverse
@@ -50,17 +54,19 @@ export default function HomePage() {
           'Portfolio value and profit/loss, always current',
           'Risk allocation across stable, growth, and yield categories',
           'Historical performance charted over time',
+          'Investment categories tuned for family risk tolerance',
         ]}
         kind="investments"
       />
       <FeatureRow
         eyebrow="Inheritance vault"
         title="Wealth that continues after generations"
-        description="Configure beneficiaries, percentage allocations, and time-locks once. Guardian approvals and a dead-man switch make sure the plan executes — with or without a lawyer in the room."
+        description="Configure beneficiaries, percentage allocations, and time-locks once. Guardian approvals and a dead-man switch make sure the plan executes."
         bullets={[
           'Percentage allocations across any number of beneficiaries',
           'Time-locks and a dead-man switch, independently configurable',
           'Guardian approvals required before any distribution',
+          'Legal notes attached for context alongside the on-chain plan',
         ]}
         kind="inheritance"
         reverse
@@ -72,6 +78,7 @@ export default function HomePage() {
         bullets={[
           'Require multiple approvals above a threshold you choose',
           'Parents approve children’s spending automatically',
+          'Monthly allowance limits enforced per child',
           'Freeze the treasury instantly if something looks wrong',
         ]}
         kind="rules"
@@ -79,12 +86,7 @@ export default function HomePage() {
 
       <RolesSection />
       <AssetStrip />
-      <StellarSection />
-      <SecuritySection />
       <AutomationSection />
-      <ComparisonSection />
-      <TestimonialsCarousel />
-      <FaqSection />
       <CtaSection />
     </>
   );

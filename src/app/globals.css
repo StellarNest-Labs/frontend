@@ -1,39 +1,228 @@
-/* Tailwind utilities + theme only — preflight (base reset) is intentionally
-   skipped so it doesn't clash with Chakra UI's own CSS reset/components. */
-@import "tailwindcss/theme" layer(theme);
-@import "tailwindcss/utilities" layer(utilities);
+@import 'tailwindcss';
 
-* {
-  box-sizing: border-box;
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #fbf8f1;
+  --foreground: #14231c;
+  --card: #fffdf9;
+  --card-foreground: #14231c;
+  --popover: #fffdf9;
+  --popover-foreground: #14231c;
+
+  --primary: #0f6b4c;
+  --primary-foreground: #fbf8f1;
+  --secondary: #eef1e9;
+  --secondary-foreground: #14231c;
+
+  --accent: #c08a2e;
+  --accent-foreground: #241b04;
+  --accent-soft: #f3e6c8;
+
+  --muted: #f1ece0;
+  --muted-foreground: #6b6154;
+
+  --border: #e5ddcb;
+  --input: #e5ddcb;
+  --ring: #0f6b4c;
+
+  --destructive: #b3432b;
+  --destructive-foreground: #fbf8f1;
+
+  --success: #1f7a4d;
+  --warning: #b3792b;
+
+  --radius: 1rem;
+
+  --nest-line: #14231c;
+
+  --shadow-color: 130 30% 12%;
 }
 
-.chakra-ui-dark body {
-  background-color: #0b0d0c;
-  background-image:
-    radial-gradient(760px circle at 12% -8%, rgba(74, 226, 146, 0.16), transparent 60%),
-    radial-gradient(640px circle at 88% 12%, rgba(37, 99, 235, 0.12), transparent 55%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+.dark {
+  --background: #0d1712;
+  --foreground: #f3efe2;
+  --card: #131f19;
+  --card-foreground: #f3efe2;
+  --popover: #131f19;
+  --popover-foreground: #f3efe2;
+
+  --primary: #3fcd97;
+  --primary-foreground: #06140d;
+  --secondary: #182720;
+  --secondary-foreground: #f3efe2;
+
+  --accent: #eabf5c;
+  --accent-foreground: #241b04;
+  --accent-soft: #2c2413;
+
+  --muted: #1a2721;
+  --muted-foreground: #9fab9f;
+
+  --border: #24352c;
+  --input: #24352c;
+  --ring: #3fcd97;
+
+  --destructive: #e07257;
+  --destructive-foreground: #0d1712;
+
+  --success: #3fcd97;
+  --warning: #eabf5c;
+
+  --nest-line: #f3efe2;
+
+  --shadow-color: 150 40% 2%;
 }
 
-::selection {
-  background: rgba(74, 226, 146, 0.35);
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 0.5rem);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.5rem);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-nest-spin: nest-spin 40s linear infinite;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+  @keyframes nest-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent-foreground);
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: #2a2f2d;
-  border-radius: 999px;
-}
+  .text-balance {
+    text-wrap: balance;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3a413e;
+  .grain-surface {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .grain-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+
+  .glass-panel {
+    background: color-mix(in oklab, var(--color-card) 72%, transparent);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  }
+
+  .shimmer-text {
+    background: linear-gradient(
+      100deg,
+      var(--color-foreground) 40%,
+      var(--color-accent) 50%,
+      var(--color-foreground) 60%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
 }
