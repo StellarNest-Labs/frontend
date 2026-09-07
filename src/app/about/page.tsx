@@ -1,3 +1,4 @@
+// About page.
 import type { Metadata } from 'next';
 import { HeartHandshake, Scale, ShieldCheck, Sparkles } from 'lucide-react';
 import { PageHero } from '@/components/marketing/page-hero';

@@ -1,4 +1,5 @@
 'use client';
+// Roles section component.
 
 import { motion } from 'framer-motion';
 import { Check, X } from 'lucide-react';

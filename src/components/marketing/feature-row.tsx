@@ -1,3 +1,4 @@
+// Feature row component.
 import { Check } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { Badge } from '@/components/ui/badge';

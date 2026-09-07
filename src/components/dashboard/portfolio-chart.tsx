@@ -1,4 +1,5 @@
 'use client';
+// Portfolio chart component.
 
 import {
   Area,

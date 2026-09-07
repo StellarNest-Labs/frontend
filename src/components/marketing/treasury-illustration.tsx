@@ -1,4 +1,5 @@
 'use client';
+// Treasury illustration component.
 
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ShieldCheck, Sparkles } from 'lucide-react';
