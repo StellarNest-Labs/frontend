@@ -1,3 +1,4 @@
+// Activity timeline component.
 import { ArrowDownLeft, ArrowUpRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 const activity = [

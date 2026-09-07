@@ -1,3 +1,4 @@
+// Faq section component.
 import { Container, Section } from '@/components/ui/container';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SectionHeader } from './section-header';

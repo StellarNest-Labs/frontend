@@ -1,4 +1,5 @@
 'use client';
+// Animated counter component.
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';

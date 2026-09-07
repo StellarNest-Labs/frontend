@@ -1,3 +1,4 @@
+// Data.
 import type {
   BlogPost,
   FamilyRoleDefinition,

@@ -1,3 +1,4 @@
+// Pricing page.
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/marketing/page-hero';
 import { PricingCards } from '@/components/marketing/pricing-cards';
