@@ -1,3 +1,4 @@
+// Footer component.
 import Link from 'next/link';
 import { NestWordmark } from '@/components/nest-mark';
 import { DiscordIcon, GithubIcon, XIcon } from '@/components/social-icons';

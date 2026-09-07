@@ -1,3 +1,4 @@
+// Features page.
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/marketing/page-hero';
 import { FeatureRow } from '@/components/marketing/feature-row';

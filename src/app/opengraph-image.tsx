@@ -1,3 +1,4 @@
+// Opengraph image.
 import { ImageResponse } from 'next/og';
 import { siteConfig } from '@/lib/data';
 

@@ -1,3 +1,4 @@
+// Sitemap.
 import type { MetadataRoute } from 'next';
 import { blogPosts, siteConfig } from '@/lib/data';
 

@@ -1,3 +1,4 @@
+// How it works component.
 import { CircleDollarSign, FileCheck2, ShieldCheck, Users } from 'lucide-react';
 import { Container, Section } from '@/components/ui/container';
 import { SectionHeader } from './section-header';

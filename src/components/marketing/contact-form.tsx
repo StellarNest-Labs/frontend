@@ -1,4 +1,5 @@
 'use client';
+// Contact form component.
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
