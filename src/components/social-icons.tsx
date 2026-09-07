@@ -1,3 +1,4 @@
+// Social icons component.
 import type { SVGProps } from 'react';
 
 export function GithubIcon(props: SVGProps<SVGSVGElement>) {

@@ -1,3 +1,4 @@
+// Stats band component.
 import { Container } from '@/components/ui/container';
 import { stats } from '@/lib/data';
 import { AnimatedCounter } from './animated-counter';

@@ -1,3 +1,4 @@
+// Page hero component.
 import type { ReactNode } from 'react';
 import { Container } from '@/components/ui/container';
 import { Badge } from '@/components/ui/badge';

@@ -1,3 +1,4 @@
+// App page.
 import { Hero } from '@/components/marketing/hero';
 import { StatsBand } from '@/components/marketing/stats-band';
 import { HowItWorks } from '@/components/marketing/how-it-works';
