@@ -1,3 +1,4 @@
+// Section header component.
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 

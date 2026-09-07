@@ -1,3 +1,4 @@
+// Nest mark component.
 import { cn } from '@/lib/utils';
 
 export function NestMark({ className }: { className?: string }) {

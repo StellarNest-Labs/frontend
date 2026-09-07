@@ -1,3 +1,4 @@
+// Comparison section component.
 import { Check, Minus } from 'lucide-react';
 import { Container, Section } from '@/components/ui/container';
 import { SectionHeader } from './section-header';

@@ -1,3 +1,4 @@
+// App page.
 import type { Metadata } from 'next';
 import {
   BadgeCheck,
