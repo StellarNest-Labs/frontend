@@ -1,3 +1,4 @@
+// Fonts.
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 
 export const fraunces = Fraunces({

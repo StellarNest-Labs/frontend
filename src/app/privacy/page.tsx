@@ -1,3 +1,4 @@
+// Privacy page.
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/marketing/page-hero';
 import { Container, Section } from '@/components/ui/container';

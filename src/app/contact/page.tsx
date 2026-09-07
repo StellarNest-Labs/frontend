@@ -1,3 +1,4 @@
+// Contact page.
 import type { Metadata } from 'next';
 import { Mail, MessageCircle, Users } from 'lucide-react';
 import { PageHero } from '@/components/marketing/page-hero';

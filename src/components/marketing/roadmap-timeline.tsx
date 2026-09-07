@@ -1,3 +1,4 @@
+// Roadmap timeline component.
 import { Check, Circle, Clock } from 'lucide-react';
 import { roadmap } from '@/lib/data';
 import { cn } from '@/lib/utils';

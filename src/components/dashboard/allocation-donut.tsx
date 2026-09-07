@@ -1,4 +1,5 @@
 'use client';
+// Allocation donut component.
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { portfolioAllocation } from '@/lib/data';

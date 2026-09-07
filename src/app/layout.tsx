@@ -1,3 +1,4 @@
+// App layout.
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { fraunces, inter, jetbrainsMono } from '@/lib/fonts';

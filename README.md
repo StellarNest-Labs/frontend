@@ -1,3 +1,4 @@
+<!-- Readme. -->
 # <img src="assets/logo.svg" width="32" height="32" align="center" alt="" /> StellarNest — Frontend
 
 The marketing site and product surface for **StellarNest**, a family

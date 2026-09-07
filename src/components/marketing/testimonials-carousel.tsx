@@ -1,4 +1,5 @@
 'use client';
+// Testimonials carousel component.
 
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';

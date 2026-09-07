@@ -1,4 +1,5 @@
 'use client';
+// Feature mockup component.
 
 import { motion } from 'framer-motion';
 import { Check, Lock, ShieldCheck, TrendingDown, TrendingUp } from 'lucide-react';
